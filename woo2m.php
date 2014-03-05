@@ -170,12 +170,16 @@ function wp2moodle_generate_hyperlink($cohort,$group) {
     }else if (isset($_GET['order_id'])) {
     	$order = new WC_Order( $_GET['order_id'] );
 	    $customer = get_user_by('id', $order->customer_user);    	
-    } else if (!empty($post->ID)) {
+    }else if (!empty($post->ID)) {
 	    $order = new WC_Order( $post->ID );
 	    $customer = get_user_by('id', $order->customer_user);
+	    if(empty($customer)){
+	    	get_currentuserinfo();
+		    $customer = get_user_by('id', $current_user->ID);	    
+	    }
     } else {
     	get_currentuserinfo();
-	    $customer = $current_user;
+	    $customer = get_user_by('id', $current_user->ID);
 	}
 
     $auth_type = get_user_meta($customer->ID, 'wpDirAuthFlag', true) ? 'ldap' : 'wp';
