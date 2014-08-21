@@ -33,8 +33,8 @@ Shortcode examples
 
 class: the css classname to apply to the link (default: woo2moodle)
 target: the hyperlink target name to apply to the link (defaut: _self)
-cohort: (optional) the id [mdl_cohort.idnumber] of the moodle cohort in which to enrol the user
-group: (optional) the id [mdl_groups.idnumber] of the moodle group in which to enrol the user
+cohort: (optional) the id [mdl_cohort.idnumber] of the moodle cohort in which to enrol the user (can be a comma-seperated list for multiple enrolments)
+group: (optional) the id [mdl_groups.idnumber] of the moodle group in which to enrol the user (can be a comma-seperated list for multiple enrolments)
 
 Licence:
 --------

@@ -3,8 +3,8 @@
 Plugin Name: woo2moodle
 Plugin URI: https://github.com/ppv1979/woo2moodle-wordpress
 Description: A plugin that sends the authenticated users details to a moodle site for authentication, enrols them in the specified cohort
-Requires: Moodle 2.2 site with the woo2moodle (Moodle) auth plugin enabled
-Version: 0.1
+Requires: Moodle 2.6 site with the woo2moodle (Moodle) auth plugin enabled
+Version: 0.2
 Author: Pavel Pisklakov
 Based on: Tim St.Clair's wp2moodle plugin (https://github.com/frumbert/wp2moodle--wordpress-)
 License: GPL2
@@ -66,6 +66,7 @@ add_action('init', 'woo2m_add_button');
 function woo2m_activate() {
 	add_option('woo2m_moodle_url', 'http://localhost/moodle');
 	add_option('woo2m_shared_secret', 'enter a random sequence of letters, numbers and symbols here');
+	add_option('woo2m_update_details', 'true');
 }
 
 /**
@@ -74,6 +75,7 @@ function woo2m_activate() {
 function woo2m_deactivate() {
 	delete_option('woo2m_moodle_url');
 	delete_option('woo2m_shared_secret');
+	delete_option( 'woo2m_update_details' );
 }
 
 /**
@@ -82,6 +84,7 @@ function woo2m_deactivate() {
 function woo2m_uninstall() {
 	delete_option('woo2m_moodle_url');
 	delete_option('woo2m_shared_secret');
+	delete_option( 'woo2m_update_details' );
 }
 
 /**
@@ -89,12 +92,13 @@ function woo2m_uninstall() {
  */
 function woo2m_create_menu() {
 	add_menu_page( 
-	__('woo2Moodle', EMU2_I18N_DOMAIN),
-	__('woo2Moodle', EMU2_I18N_DOMAIN),
-	'administrator',
-	WOO2M_PLUGIN_DIRECTORY.'/woo2m_settings_page.php',
-	'',
-	plugins_url('icon.png', __FILE__));
+		__('woo2Moodle', EMU2_I18N_DOMAIN),
+		__('woo2Moodle', EMU2_I18N_DOMAIN),
+		'administrator',
+		WOO2M_PLUGIN_DIRECTORY.'/woo2m_settings_page.php',
+		'',
+		plugins_url('woo2moodle/icon.png', WOO2M_PLUGIN_DIRECTORY) //__FILE__));
+	);
 }
 
 /**
@@ -104,6 +108,7 @@ function woo2m_register_settings() {
 	//register settings against a grouping (how wp-admin/options.php works)
 	register_setting( 'woo2m-settings-group', 'woo2m_moodle_url' );
 	register_setting( 'woo2m-settings-group', 'woo2m_shared_secret' );
+	register_setting( 'woo2m-settings-group', 'woo2m_update_details' );
 }
 
 /**
@@ -186,9 +191,10 @@ function wp2moodle_generate_hyperlink($cohort,$group) {
     $customer_country = get_user_meta($customer->ID, 'billing_country', true);
     $customer_city = get_user_meta($customer->ID, 'billing_city', true);
 
+	$update = get_option('woo2m_update_details') ?: "true";
 
-	$details = http_build_query(array(
-		"a" => rand(1, 1500),							// set first to randomise the encryption when this string is encoded
+	$enc = array(
+		"offset" => rand(1234, 5678),					// set first to randomise the encryption when this string is encoded
 		"stamp" => time(),								// unix timestamp so we can check that the link isn't expired
 		"firstname" => $customer->user_firstname,		// first name
 		"lastname" => $customer->user_lastname,			// last name
@@ -201,8 +207,12 @@ function wp2moodle_generate_hyperlink($cohort,$group) {
 		"cohort" => $cohort,							// string containing cohort to enrol this user into
 		"group" => $group,								// string containing group to enrol this user into
 		"auth" => $auth_type,							// where user come from - ldap or wordpress
-		"z" => rand(1, 1500),							// extra randomiser for when this string is encrypted (for variance)
+		"updatable" => $update							// if user profile fields can be updated in moodle
 	));
+	
+	// encode array as querystring
+	$details = http_build_query($enc);
+	
 	// encryption = 3des using shared_secret
 	return get_option('woo2m_moodle_url').WOO2M_MOODLE_PLUGIN_URL.encrypt_string($details, get_option('woo2m_shared_secret'));
 }
@@ -221,7 +231,8 @@ function woo2m_register_button($buttons) {
    return $buttons;
 }
 function woo2m_add_plugin($plugin_array) {
-   $plugin_array['woo2m'] = plugins_url( 'woo2m.js', __FILE__ );
+	// __FILE__ breaks if woo2moodle is a symlink, so we have to use the defined directory
+   $plugin_array['woo2m'] = plugins_url( 'woo2moodle/woo2m.js', WOO2M_PLUGIN_DIRECTORY); // __FILE__ );
    return $plugin_array;
 }
 
