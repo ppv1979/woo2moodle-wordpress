@@ -161,7 +161,7 @@ function woo2moodle_handler( $atts, $content = null ) {
 /*
  * Function to build the encrypted hyperlink
  */
-function wp2moodle_generate_hyperlink($cohort,$group) {
+function woo2moodle_generate_hyperlink($cohort,$group) {
 
 	// needs authentication; ensure userinfo globals are populated
 	global $current_user;
