@@ -215,7 +215,6 @@ function woo2moodle_generate_hyperlink($cohort,$group) {
 	
 	// encryption = 3des using shared_secret
 	return get_option('woo2m_moodle_url').WOO2M_MOODLE_PLUGIN_URL.encrypt_string($details, get_option('woo2m_shared_secret'));
-//	return get_option('woo2m_moodle_url').WOO2M_MOODLE_PLUGIN_URL.$details;
 
 }
 
