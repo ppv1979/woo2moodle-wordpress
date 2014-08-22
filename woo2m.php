@@ -187,7 +187,7 @@ function woo2moodle_generate_hyperlink($cohort,$group) {
 	    $customer = get_user_by('id', $current_user->ID);
 	}
 
-    $auth_type = get_user_meta($customer->ID, 'wpDirAuthFlag', true) ? 'ldap' : 'wp';
+    $auth_type = get_user_meta($customer->ID, 'wpDirAuthFlag', true) ? 'ldap' : 'woo';
     $customer_country = get_user_meta($customer->ID, 'billing_country', true);
     $customer_city = get_user_meta($customer->ID, 'billing_city', true);
 
@@ -208,13 +208,15 @@ function woo2moodle_generate_hyperlink($cohort,$group) {
 		"group" => $group,								// string containing group to enrol this user into
 		"auth" => $auth_type,							// where user come from - ldap or wordpress
 		"updatable" => $update							// if user profile fields can be updated in moodle
-	));
+	);
 	
 	// encode array as querystring
 	$details = http_build_query($enc);
 	
 	// encryption = 3des using shared_secret
 	return get_option('woo2m_moodle_url').WOO2M_MOODLE_PLUGIN_URL.encrypt_string($details, get_option('woo2m_shared_secret'));
+//	return get_option('woo2m_moodle_url').WOO2M_MOODLE_PLUGIN_URL.$details;
+
 }
 
 /**
