@@ -4,9 +4,9 @@
         init : function(ed, url) {
             ed.addButton('woo2m', {
                 title : 'WooCommerce 2 Moodle',
-                image : url+'/icon.png',
+                image : url+'/icon.svg',
                 onclick : function() {
-                     ed.selection.setContent('[woo2moodle cohort=\'\']' + ed.selection.getContent() + '[/woo2moodle]');
+                     ed.selection.setContent('[woo2moodle cohort="" group="" course="" class="woo2moodle" target="_self" authtext="" activity="0"]' + ed.selection.getContent() + '[/woo2moodle]');
                 }
             });
         },
